@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
 import LoadingState from "../components/LoadingState"
 import ErrorState from "../components/ErrorState"
+import api from "../services/api"
 
 export default function AppointmentEdit() {
   const { id } = useParams()
@@ -14,11 +15,7 @@ export default function AppointmentEdit() {
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    fetch(`/api/appointments/${id}`)
-      .then(r => {
-        if (!r.ok) throw new Error("Failed to load appointment")
-        return r.json()
-      })
+    api.fetchAppointment(id)
       .then(data => {
         setAppointment(data)
         setLoading(false)
@@ -34,27 +31,14 @@ export default function AppointmentEdit() {
     setErrors({})
 
     try {
-      const response = await fetch(`/api/appointments/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        if (result.errors) {
-          setErrors(result.errors)
-        } else {
-          setErrors({ general: result.error || "Failed to update appointment" })
-        }
-        setIsSubmitting(false)
-        return
-      }
-
+      await api.put(`/api/appointments/${id}`, form)
       navigate("/appointments")
-    } catch {
-      setErrors({ general: "Network error. Please try again." })
+    } catch (err) {
+      if (err.errors) {
+        setErrors(err.errors)
+      } else {
+        setErrors({ general: err.message || "Failed to update appointment" })
+      }
       setIsSubmitting(false)
     }
   }

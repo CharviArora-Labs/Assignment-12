@@ -1,10 +1,27 @@
-const mockAppointments = [
-  { id: 1, provider: "Dr. Smith", date: "2026-03-10", time: "09:00", patient: "John Doe" },
-  { id: 2, provider: "Dr. Johnson", date: "2026-03-11", time: "10:30", patient: "Jane Smith" },
-  { id: 3, provider: "Dr. Smith", date: "2026-03-12", time: "14:00", patient: "Bob Wilson" },
-  { id: 4, provider: "Dr. Williams", date: "2026-03-13", time: "11:00", patient: "Alice Brown" },
-  { id: 5, provider: "Dr. Johnson", date: "2026-03-14", time: "15:30", patient: "Charlie Davis" },
+const defaultAppointments = [
+  { id: 1, provider: "Dr. Smith", date: "2026-03-10", time: "09:00", patient: "John Doe", notes: "" },
+  { id: 2, provider: "Dr. Johnson", date: "2026-03-11", time: "10:30", patient: "Jane Smith", notes: "" },
+  { id: 3, provider: "Dr. Smith", date: "2026-03-12", time: "14:00", patient: "Bob Wilson", notes: "" },
+  { id: 4, provider: "Dr. Williams", date: "2026-03-13", time: "11:00", patient: "Alice Brown", notes: "" },
+  { id: 5, provider: "Dr. Johnson", date: "2026-03-14", time: "15:30", patient: "Charlie Davis", notes: "" },
 ];
+
+const STORAGE_KEY = 'appointments';
+
+function loadAppointments() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  return [...defaultAppointments];
+}
+
+function saveAppointments(appointments) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appointments));
+}
+
+let mockAppointments = loadAppointments();
+let nextId = Math.max(...mockAppointments.map(a => a.id), 5) + 1;
 
 const BASE_URL = "http://localhost:3000/api";
 
@@ -63,6 +80,15 @@ const api = {
     return appointment;
   },
 
+  fetchAppointment: async (id) => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const appointment = mockAppointments.find((a) => a.id === parseInt(id));
+    if (!appointment) {
+      throw new Error("Appointment not found");
+    }
+    return appointment;
+  },
+
   post: async (path, data) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     
@@ -82,12 +108,13 @@ const api = {
     }
     
     const newAppointment = {
-      id: mockAppointments.length + 1,
+      id: nextId++,
       ...data,
       time: "10:00",
       patient: "New Patient"
     };
     mockAppointments.push(newAppointment);
+    saveAppointments(mockAppointments);
     
     return newAppointment;
   },
@@ -119,6 +146,7 @@ const api = {
     }
     
     mockAppointments[index] = { ...mockAppointments[index], ...data };
+    saveAppointments(mockAppointments);
     
     return mockAppointments[index];
   },

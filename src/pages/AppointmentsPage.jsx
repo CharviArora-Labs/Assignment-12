@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -131,6 +132,8 @@ function AppointmentsPage() {
             <th>Date</th>
             <th>Time</th>
             <th>Patient</th>
+            <th>Notes</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -142,6 +145,8 @@ function AppointmentsPage() {
               <td>{a.date}</td>
               <td>{a.time}</td>
               <td>{a.patient}</td>
+              <td>{a.notes || "-"}</td>
+              <td><Link to={`/appointments/${a.id}/edit`}>Edit</Link></td>
             </tr>
           ))}
         </tbody>

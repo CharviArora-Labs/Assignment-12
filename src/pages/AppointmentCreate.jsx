@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import AppointmentForm from "../components/AppointmentForm"
+import api from "../services/api"
 
 export default function AppointmentCreate() {
   const navigate = useNavigate()
@@ -12,27 +13,14 @@ export default function AppointmentCreate() {
     setErrors({})
 
     try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        if (result.errors) {
-          setErrors(result.errors)
-        } else {
-          setErrors({ general: result.error || "Failed to create appointment" })
-        }
-        setIsSubmitting(false)
-        return
-      }
-
+      await api.post("/api/appointments", data)
       navigate("/appointments")
-    } catch {
-      setErrors({ general: "Network error. Please try again." })
+    } catch (err) {
+      if (err.errors) {
+        setErrors(err.errors)
+      } else {
+        setErrors({ general: err.message || "Failed to create appointment" })
+      }
       setIsSubmitting(false)
     }
   }

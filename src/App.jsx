@@ -4,9 +4,9 @@ import Layout from "./layout/Layout";
 import DashboardList from "./pages/DashboardList";
 import DashboardDetail from "./pages/DashboardDetail";
 import AppointmentsPage from "./pages/AppointmentsPage";
+import NotFound from "./pages/NotFound";
 import AppointmentCreate from "./pages/AppointmentCreate";
 import AppointmentEdit from "./pages/AppointmentEdit";
-import NotFound from "./pages/NotFound";
 
 function App() {
   return (
